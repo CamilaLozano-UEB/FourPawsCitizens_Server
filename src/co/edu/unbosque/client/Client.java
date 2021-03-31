@@ -1,75 +1,83 @@
 package co.edu.unbosque.client;
 
+import java.awt.BorderLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.Scanner;
 
-public class Client extends Thread {
+import javax.swing.JFrame;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
 
-	public static void main(String[] args) {
-		try {
-			Socket socket = new Socket("127.0.0.1", 9999);
-			System.out.println("Connected: " + socket);
-			System.out.println("Bienvenido a Ciudadanos de 4 patas" + "\n Ingrese el numero que desea"
-					+ " \n1. Crear un caso" + "\n2. Hablar con un agente");
+public class Client {
 
-			var scanner = new Scanner(System.in);
-			var in = new Scanner(socket.getInputStream());
-			var out = new PrintWriter(socket.getOutputStream(), true);
+	Scanner in;
+	PrintWriter out;
+	JFrame frame = new JFrame("Chatter");
+	JTextField textField = new JTextField(50);
+	JTextArea messageArea = new JTextArea(16, 50);
 
-			while (scanner.hasNextLine()) {
-				out.println(scanner.nextLine());
-				int op = Integer.parseInt(in.nextLine());
-				if (op == 1) {
-					System.out.println("¿Que va a reportar?\n" + "(1) Pérdida,\n" + "(2) Robo,\n" + "(3) Abandono,\n"
-							+ "(4) Animal peligroso, o\n" + "(5) Manejo indebido en vía pública. ");
-					out.println(scanner.nextLine());
-					int op2 = Integer.parseInt(in.nextLine());
-					System.out.println("Ingrese la especie");
-					out.println(scanner.nextLine());
-					String specie = in.nextLine();
-					System.out.println("Ingrese la Tamaño");
-					out.println(scanner.nextLine());
-					String size = in.nextLine();
-					System.out.println("Ingrese la Localidad");
-					out.println(scanner.nextLine());
-					String neighborhood = in.nextLine();
-					System.out.println("Ingrese la Dirección");
-					out.println(scanner.nextLine());
-					String address = in.nextLine();
-					System.out.println("Ingrese su nombre");
-					out.println(scanner.nextLine());
-					String name = in.nextLine();
-					System.out.println("Ingrese su Telefono");
-					out.println(scanner.nextLine());
-					String phone = in.nextLine();
-					System.out.println("Ingrese su correo");
-					out.println(scanner.nextLine());
-					String email = in.nextLine();
-					System.out.println("Ingrese su comentarios");
-					out.println(scanner.nextLine());
-					String comment = in.nextLine();
+	public Client() {
 
-					String report = op2 + ";" + specie + ";" + size + ";" + neighborhood + ";" + address + ";" + phone
-							+ ";" + email + ";" + comment;
-					System.out.println("El caso ha sido creado.");
-					System.out.println("Bienvenido a Ciudadanos de 4 patas" + "\n Ingrese el numero que desea"
-							+ " \n1. Crear un caso" + "\n2. Hablar con un agente");
+		messageArea.setEditable(false);
+		frame.getContentPane().add(textField, BorderLayout.SOUTH);
+		frame.getContentPane().add(new JScrollPane(messageArea), BorderLayout.CENTER);
+		frame.pack();
 
-				} else {
-
-					System.out.println("No se que hace ");
-					System.out.println("Bienvenido a Ciudadanos de 4 patas" + "\n Ingrese el numero que desea"
-							+ " \n1. Crear un caso" + "\n2. Hablar con un agente");
-				}
-
+		// Send on enter then clear to prepare for next message
+		textField.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				out.println(textField.getText());
+				textField.setText("");
 			}
+		});
 
-		} catch (
+	}
 
-		Exception e) {
+	public static void main(String[] args) throws UnknownHostException, IOException {
+		// TODO Auto-generated method stub
 
+		var client = new Client();
+		client.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		client.frame.setVisible(true);
+		client.run();
+	}
+
+	private void run() throws IOException {
+		try {
+			var socket = new Socket("127.0.0.1", 59001);
+			in = new Scanner(socket.getInputStream());
+			out = new PrintWriter(socket.getOutputStream(), true);
+			out.println("Client");
+			while (in.hasNextLine()) {
+				var line = in.nextLine();
+				messageArea.append(line + "\n");
+			}
+		} finally {
+			frame.setVisible(false);
+			frame.dispose();
 		}
+	}
+
+	public Scanner getIn() {
+		return in;
+	}
+
+	public void setIn(Scanner in) {
+		this.in = in;
+	}
+
+	public PrintWriter getOut() {
+		return out;
+	}
+
+	public void setOut(PrintWriter out) {
+		this.out = out;
 	}
 
 }
