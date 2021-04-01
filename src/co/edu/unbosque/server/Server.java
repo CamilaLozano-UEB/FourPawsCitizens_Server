@@ -129,12 +129,12 @@ public class Server {
 			// TODO Auto-generated method stub
 			out.println("Crear caso");
 			out.println("¿Que va a reportar? ingrese el numero\n"
-					+ "(1) Pérdida,\n"
-					+ "(2) Robo,\n"
-					+ "(3) Abandono,\n"
-					+ "(4) Animal peligroso, o\n"
+					+ "(1) Pérdida\n"
+					+ "(2) Robo\n"
+					+ "(3) Abandono\n"
+					+ "(4) Animal peligroso\n"
 					+ "(5) Manejo indebido en vía pública. " );
-        	int op2 =Integer.parseInt(in.nextLine());
+        	String op2 =(in.nextLine());
         	out.println("Ingrese la especie");
         	String specie =in.nextLine();
         	out.println("Ingrese la Tamaño");
@@ -151,11 +151,31 @@ public class Server {
         	String email =in.nextLine();
         	out.println("Ingrese su comentarios");
         	String comment =in.nextLine();
-        	
-        	String report= op2 +";"+specie+";"+size+";"+ neighborhood+";"+address+";"+name+";"+phone+";"+email+";"+comment;
+        	String event;
+        	switch (op2) {
+			case "1":
+				event="Pérdida";
+				break;
+			case "2":
+				event="Robo";
+				break;
+			case "3":
+				event="Abandono";
+				break;
+			case "4":
+				event="Animal peligroso";
+				break;
+			case "5":
+				event="Manejo indebido en vía pública";
+				break;
+			
+			default:
+				event="No se especifico";
+				break;
+			}
+        	String report= event +";"+specie+";"+size+";"+ neighborhood+";"+address+";"+name+";"+phone+";"+email+";"+comment;
         	out.println("El caso ha sido creado.");
         	per.writeCSV(report);
-        	System.out.println(report);
 
 		}
 	}
