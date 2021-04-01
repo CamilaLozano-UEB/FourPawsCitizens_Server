@@ -27,6 +27,6 @@
 	<dd>5.4. Para hablar con un agente ingrese el número 2, correspondiente a esta opción de ingreso. </dd>
 	<dd>5.5. Espere a que la consola envie el mensaje de aceptación o denegación con el agente, existe el caso de que deba esperar y para ello debe avisar que va a esperar</dd>
 	<dd> 5.6 Si la conexión fue aceptada, hable con el agente el tiempo que sea necesario y luego puede cerrar la aplicación o ingresar "exit" para volver al menú principal.</dd>
-	<dd>5.7 En caso de que usted sea el agente. Si un cliente desea comunicarse con usted, espere a que envie la petición y puede aceptarla o denegarla. Si la acepta, atienda el cliente el tiempo que sea necesario; recuerde que puede haber más de un agente en el servidor. Si la deniegue, ingrese "exit" en el chat para abandonarlo.</dd>
+	<dd>5.7 En caso de que usted sea el agente. Si un cliente desea comunicarse con usted, espere a que envie la petición y puede aceptarla o denegarla. Si la acepta, atienda el cliente el tiempo que sea necesario; recuerde que puede haber más de un agente en el servidor. Si la deniegue, ingrese "exit" en el chat para abandonarlo o cierre la aplicación.</dd>
 	</dl>
 </html>	
