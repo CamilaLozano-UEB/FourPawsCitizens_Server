@@ -6,6 +6,7 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.concurrent.Executors;
+import co.edu.unbosque.persistence.Persistence;
 
 public class Server {
 	private static ArrayList<Integer> agentesDisponibles = new ArrayList<Integer>();
@@ -124,6 +125,7 @@ public class Server {
 		}
 
 		private void createCase() {
+			Persistence per = new Persistence();
 			// TODO Auto-generated method stub
 			out.println("Crear caso");
 			out.println("¿Que va a reportar? ingrese el numero\n"
@@ -152,6 +154,7 @@ public class Server {
         	
         	String report= op2 +";"+specie+";"+size+";"+ neighborhood+";"+address+";"+name+";"+phone+";"+email+";"+comment;
         	out.println("El caso ha sido creado.");
+        	per.writeCSV(report);
         	System.out.println(report);
 
 		}
