@@ -82,6 +82,10 @@ public class Server {
 					out.println("Conectado como agente");
 					while (true) {
 						line = in.nextLine();
+						if (agentWriters.indexOf(out) != userIndex) {
+							userIndex = agentWriters.indexOf(out);
+						}
+
 						if (agentesDisponibles.get(userIndex) != null) {
 							if (line.equalsIgnoreCase("Si") || line.equalsIgnoreCase("Sí")) {
 								out.println("Se ha establecido conexión");
@@ -113,12 +117,15 @@ public class Server {
 				if (role.equals("Client") && out != null) {
 					connectionWriter
 							.println("El cliente se ha desconectado, presione Enter antes de enviar otro mensaje");
+					agentesDisponiblesIndex.set(agentesDisponibles.indexOf(out), false);
 					agentesDisponibles.set(agentesDisponibles.indexOf(out), null);
 					clientWriters.remove(out);
+
 				} else if (role.equals("Agent") && out != null) {
 					connectionWriter
 							.println("El agente se ha desconectado, presione Enter antes de enviar otro mensaje");
 					agentWriters.remove(out);
+					agentesDisponiblesIndex.remove(userIndex);
 					agentesDisponibles.remove(userIndex);
 				}
 				try {
@@ -136,7 +143,9 @@ public class Server {
 				return;
 			}
 			for (int i = 0; i < agentesDisponibles.size(); i++) {
-				if (agentesDisponibles.get(i) == null) {
+				if (agentesDisponiblesIndex.get(i) && i == agentesDisponibles.size() - 1) {
+					out.println("No hay agentes disponibles");
+				} else if (agentesDisponibles.get(i) == null && !agentesDisponiblesIndex.get(i)) {
 					connectionWriter = agentWriters.get(i);
 					connectionWriter.println("¿Acepta solicitud?, responda Si o No");
 					agentesDisponibles.set(i, out);
@@ -144,23 +153,31 @@ public class Server {
 						String input = in.nextLine();
 
 						try {
+							if (agentesDisponibles.get(agentWriters.indexOf(connectionWriter)) == null) {
+								connectionWriter = null;
+								break;
+							}
+							if (agentWriters.indexOf(connectionWriter) != i) {
+								i = agentWriters.indexOf(connectionWriter);
+								System.out.println(i);
+							}
 							if (i == agentesDisponibles.size() - 1 && !agentesDisponiblesIndex.get(i)
 									&& agentesDisponibles.get(i) == null) {
 								out.println("No hay más agentes disponibles");
 								return;
 							}
-							if (agentesDisponibles.get(i) == null) {
-								connectionWriter = null;
-								break;
+
+							System.out.println("meau");
+							if (agentesDisponiblesIndex.get(agentWriters.indexOf(connectionWriter))) {
+								System.out.println("lola");
+								out.println("Me: " + input);
+								agentWriters.get(i).println("Client: " + input);
 							}
 						} catch (IndexOutOfBoundsException e) {
 							connectionWriter = null;
 							break;
 						}
-						if (agentesDisponiblesIndex.get(i)) {
-							out.println("Me: " + input);
-							agentWriters.get(i).println("Client: " + input);
-						}
+
 					}
 				}
 
