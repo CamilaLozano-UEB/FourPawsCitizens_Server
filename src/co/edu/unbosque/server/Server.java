@@ -10,6 +10,8 @@ import java.util.concurrent.Executors;
 import co.edu.unbosque.persistence.Persistence;
 
 public class Server {
+
+	private static ArrayList<Boolean> agentesDisponiblesIndex = new ArrayList<Boolean>();
 	private static ArrayList<PrintWriter> agentesDisponibles = new ArrayList<PrintWriter>();
 	private static ArrayList<PrintWriter> agentWriters = new ArrayList<PrintWriter>();
 	private static ArrayList<PrintWriter> clientWriters = new ArrayList<PrintWriter>();
@@ -74,28 +76,34 @@ public class Server {
 				} else {
 					userIndex = agentesDisponibles.size();
 					agentesDisponibles.add(null);
+					agentesDisponiblesIndex.add(false);
 					agentWriters.add(out);
 					role = "Agent";
 					out.println("Conectado como agente");
 					while (true) {
 						line = in.nextLine();
-						if (line.equalsIgnoreCase("Si") || line.equalsIgnoreCase("Sí")) {
-							out.println("Se ha establecido conexión");
-							connectionWriter = agentesDisponibles.get(userIndex);
-							connectionWriter.println("Conexión establecida");
-							while (true) {
-								line = in.nextLine();
-								if (agentesDisponibles.indexOf(connectionWriter) == -1) {
-									connectionWriter = null;
-									break;
+						if (agentesDisponibles.get(userIndex) != null) {
+							if (line.equalsIgnoreCase("Si") || line.equalsIgnoreCase("Sí")) {
+								out.println("Se ha establecido conexión");
+								connectionWriter = agentesDisponibles.get(userIndex);
+								agentesDisponiblesIndex.set(userIndex, true);
+								connectionWriter.println("Conexión establecida");
+								while (true) {
+									line = in.nextLine();
+									if (agentesDisponibles.indexOf(connectionWriter) == -1) {
+										connectionWriter = null;
+										break;
+									}
+									connectionWriter.println("Agente: " + line);
+									out.println("Me: " + line);
 								}
-								connectionWriter.println("Agente: " + line);
-								out.println("Me: " + line);
+							} else if (line.equalsIgnoreCase("No")) {
+								out.println("Solicitud rechazada");
+								agentesDisponibles.get(userIndex).println(
+										"El agente ha denegado su solicitud,\n escriba *esperar* si desea enviar la solicitud a otro agente");
+								agentesDisponibles.set(userIndex, null);
+								agentesDisponiblesIndex.set(userIndex, false);
 							}
-						} else if (line.equalsIgnoreCase("No")) {
-							agentesDisponibles.get(userIndex).println(
-									"El agente ha denegado su solicitud,\n escriba *esperar* si desea enviar la solicitud a otro agente");
-							agentesDisponibles.set(userIndex, null);
 						}
 					}
 				}
@@ -122,6 +130,7 @@ public class Server {
 
 		private void agentConnection() {
 			// TODO Auto-generated method stub
+			out.println("Solicitud enviada");
 			if (agentesDisponibles.size() == 0) {
 				out.println("No hay agentes disponibles");
 				return;
@@ -133,21 +142,25 @@ public class Server {
 					agentesDisponibles.set(i, out);
 					while (true) {
 						String input = in.nextLine();
+
 						try {
-							if (i == agentesDisponibles.size() - 1) {
+							if (i == agentesDisponibles.size() - 1 && !agentesDisponiblesIndex.get(i)
+									&& agentesDisponibles.get(i) == null) {
 								out.println("No hay más agentes disponibles");
-							}
-							if (agentesDisponibles.get(agentesDisponibles.indexOf(out)) == null) {
-								connectionWriter = null;
 								return;
 							}
-						} catch (Exception e) {
+							if (agentesDisponibles.get(i) == null) {
+								connectionWriter = null;
+								break;
+							}
+						} catch (IndexOutOfBoundsException e) {
 							connectionWriter = null;
-							return;
+							break;
 						}
-
-						out.println("Me: " + input);
-						agentWriters.get(i).println("Client: " + input);
+						if (agentesDisponiblesIndex.get(i)) {
+							out.println("Me: " + input);
+							agentWriters.get(i).println("Client: " + input);
+						}
 					}
 				}
 
