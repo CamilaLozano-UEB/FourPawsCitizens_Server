@@ -44,6 +44,7 @@ public class Client {
 
 		var client = new Client();
 		client.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		client.frame.setLocationRelativeTo(null);
 		client.frame.setVisible(true);
 		client.run();
 	}

@@ -56,6 +56,7 @@ public class Agent {
 		// TODO Auto-generated method stub
 		Agent agent = new Agent();
 		agent.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		agent.frame.setLocationRelativeTo(null);
 		agent.frame.setVisible(true);
 		agent.run();
 
