@@ -72,22 +72,26 @@ public class Server {
 					agentesDisponibles.add(-1);
 					agentWriters.add(out);
 					out.println("Conectado como agente");
-					line = in.nextLine();
-					boolean chat = true;
-					while (chat) {
+					while (true) {
+						line = in.nextLine();
 						if (line.equalsIgnoreCase("Si") || line.equalsIgnoreCase("Sí")) {
+							out.println("Se ha establecido conexión");
 							clientWriters.get(agentesDisponibles.get(userIndex)).println("Conexión establecida");
 							while (line != "exit") {
 								line = in.nextLine();
-								clientWriters.get(agentesDisponibles.get(userIndex)).println("Agente: " + line);
-								out.println("Me: " + line);
+								if (agentesDisponibles.get(userIndex) == -1) {
+									break;
+								} else {
+									clientWriters.get(agentesDisponibles.get(userIndex)).println("Agente: " + line);
+									out.println("Me: " + line);
+								}
 							}
-						} else {
+						} else if (line.equalsIgnoreCase("No")) {
 							if ((userIndex + 1) == agentesDisponibles.size()) {
 								clientWriters.get(agentesDisponibles.get(userIndex))
 										.println("No hay agentes disponibles");
-								chat = false;
 								line = "exit";
+								break;
 							} else {
 								clientWriters.get(agentesDisponibles.get(userIndex)).println("El agente "
 										+ (userIndex + 1)
@@ -95,12 +99,11 @@ public class Server {
 								agentesDisponibles.set(userIndex, -1);
 								line = "exit";
 							}
-
 						}
 					}
 				}
 			} catch (Exception e) {
-				System.out.println(e);
+				e.printStackTrace();
 			}
 		}
 
@@ -115,6 +118,8 @@ public class Server {
 						while (true) {
 							String input = in.nextLine();
 							if (input.toLowerCase().equals("exit") || input.toLowerCase().equals("esperar")) {
+								agentWriters.get(i).println("El cliente ha habandonado la conversación");
+								agentesDisponibles.set(i, -1);
 								break;
 							}
 							out.println("Me: " + input);
