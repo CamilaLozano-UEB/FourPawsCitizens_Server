@@ -110,28 +110,33 @@ public class Server {
 								} else {
 									agentesDisponibles.get(userIndex).println(
 											"El agente ha denegado su solicitud,\n escriba *esperar* si desea enviar la solicitud a otro agente");
-
 								}
+								connectionWriter = null;
 								agentesDisponibles.set(userIndex, null);
 								agentesDisponiblesIndex.set(userIndex, false);
 							}
 						}
 					}
 				}
-				
+
 			} catch (Exception e) {
 				e.printStackTrace();
 			} finally {
 				if (role.equals("Client") && out != null) {
-					connectionWriter
-							.println("El cliente se ha desconectado, presione Enter antes de enviar otro mensaje");
+					if (connectionWriter != null)
+						connectionWriter
+								.println("El cliente se ha desconectado, presione Enter antes de enviar otro mensaje");
 					agentesDisponiblesIndex.set(agentesDisponibles.indexOf(out), false);
 					agentesDisponibles.set(agentesDisponibles.indexOf(out), null);
 					clientWriters.remove(out);
 
 				} else if (role.equals("Agent") && out != null) {
-					connectionWriter
-							.println("El agente se ha desconectado, presione Enter antes de enviar otro mensaje");
+					if (agentWriters.indexOf(out) != userIndex)
+						userIndex = agentWriters.indexOf(out);
+
+					if (connectionWriter != null)
+						connectionWriter
+								.println("El agente se ha desconectado, presione Enter antes de enviar otro mensaje");
 					agentWriters.remove(out);
 					agentesDisponiblesIndex.remove(userIndex);
 					agentesDisponibles.remove(userIndex);
@@ -161,6 +166,13 @@ public class Server {
 						String input = in.nextLine();
 
 						try {
+							if (i == agentesDisponibles.size() - 1 && !agentesDisponiblesIndex.get(i)
+									&& agentesDisponibles.get(i) == null) {
+								out.println("No hay más agentes disponibles");
+								connectionWriter = null;
+								return;
+							}
+
 							if (agentesDisponibles.get(agentWriters.indexOf(connectionWriter)) == null) {
 								connectionWriter = null;
 								break;
@@ -168,12 +180,6 @@ public class Server {
 							if (agentWriters.indexOf(connectionWriter) != i) {
 								i = agentWriters.indexOf(connectionWriter);
 							}
-							if (i == agentesDisponibles.size() - 1 && !agentesDisponiblesIndex.get(i)
-									&& agentesDisponibles.get(i) == null) {
-								out.println("No hay más agentes disponibles");
-								return;
-							}
-
 							if (agentesDisponiblesIndex.get(agentWriters.indexOf(connectionWriter))) {
 								out.println("Me: " + input);
 								agentWriters.get(i).println("Client: " + input);
