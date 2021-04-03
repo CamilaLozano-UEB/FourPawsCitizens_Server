@@ -123,11 +123,15 @@ public class Server {
 				e.printStackTrace();
 			} finally {
 				if (role.equals("Client") && out != null) {
-					if (connectionWriter != null)
+					if (connectionWriter != null) {
 						connectionWriter
 								.println("El cliente se ha desconectado, presione Enter antes de enviar otro mensaje");
-					agentesDisponiblesIndex.set(agentesDisponibles.indexOf(out), false);
-					agentesDisponibles.set(agentesDisponibles.indexOf(out), null);
+					}
+					if (-1 != agentesDisponibles.indexOf(out)) {
+						agentesDisponiblesIndex.set(agentesDisponibles.indexOf(out), false);
+						agentesDisponibles.set(agentesDisponibles.indexOf(out), null);
+					}
+
 					clientWriters.remove(out);
 
 				} else if (role.equals("Agent") && out != null) {
@@ -157,8 +161,11 @@ public class Server {
 			}
 			for (int i = 0; i < agentesDisponibles.size(); i++) {
 				if (agentesDisponiblesIndex.get(i) && i == agentesDisponibles.size() - 1) {
-					out.println("No hay agentes disponibles");
+					out.println("No hay agentes disponibles ");
+				} else if (agentesDisponibles.get(i) != null && i == agentesDisponibles.size() - 1) {
+					out.println("No hay más agentes disponibles ");
 				} else if (agentesDisponibles.get(i) == null && !agentesDisponiblesIndex.get(i)) {
+
 					connectionWriter = agentWriters.get(i);
 					connectionWriter.println("¿Acepta solicitud?, responda Si o No");
 					agentesDisponibles.set(i, out);
@@ -166,6 +173,14 @@ public class Server {
 						String input = in.nextLine();
 
 						try {
+							if (agentWriters.indexOf(connectionWriter) != i) {
+								if (agentWriters.indexOf(connectionWriter) == -1) {
+									return;
+								} else {
+									i = agentWriters.indexOf(connectionWriter);
+								}
+
+							}
 							if (i == agentesDisponibles.size() - 1 && !agentesDisponiblesIndex.get(i)
 									&& agentesDisponibles.get(i) == null) {
 								out.println("No hay más agentes disponibles");
@@ -177,9 +192,7 @@ public class Server {
 								connectionWriter = null;
 								break;
 							}
-							if (agentWriters.indexOf(connectionWriter) != i) {
-								i = agentWriters.indexOf(connectionWriter);
-							}
+
 							if (agentesDisponiblesIndex.get(agentWriters.indexOf(connectionWriter))) {
 								out.println("Me: " + input);
 								agentWriters.get(i).println("Client: " + input);
