@@ -22,7 +22,7 @@ public class Client {
 
 	public Client() {
 
-		view = new View("Four Pawns Citizens - Agent");
+		view = new View("Four Pawns Citizens - Client");
 		// Send on enter then clear to prepare for next message
 		view.getInputTextField().addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
