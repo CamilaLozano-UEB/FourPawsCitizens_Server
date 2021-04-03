@@ -103,8 +103,15 @@ public class Server {
 								}
 							} else if (line.equalsIgnoreCase("No")) {
 								out.println("Solicitud rechazada");
-								agentesDisponibles.get(userIndex).println(
-										"El agente ha denegado su solicitud,\n escriba *esperar* si desea enviar la solicitud a otro agente");
+								if (userIndex == agentesDisponibles.size() - 1) {
+									connectionWriter = agentesDisponibles.get(userIndex);
+									connectionWriter.println("No hay agentes disponibles, presione ENTER");
+
+								} else {
+									agentesDisponibles.get(userIndex).println(
+											"El agente ha denegado su solicitud,\n escriba *esperar* si desea enviar la solicitud a otro agente");
+
+								}
 								agentesDisponibles.set(userIndex, null);
 								agentesDisponiblesIndex.set(userIndex, false);
 							}
@@ -159,7 +166,6 @@ public class Server {
 							}
 							if (agentWriters.indexOf(connectionWriter) != i) {
 								i = agentWriters.indexOf(connectionWriter);
-								System.out.println(i);
 							}
 							if (i == agentesDisponibles.size() - 1 && !agentesDisponiblesIndex.get(i)
 									&& agentesDisponibles.get(i) == null) {
@@ -167,9 +173,7 @@ public class Server {
 								return;
 							}
 
-							System.out.println("meau");
 							if (agentesDisponiblesIndex.get(agentWriters.indexOf(connectionWriter))) {
-								System.out.println("lola");
 								out.println("Me: " + input);
 								agentWriters.get(i).println("Client: " + input);
 							}
