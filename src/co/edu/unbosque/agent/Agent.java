@@ -38,6 +38,7 @@ public class Agent {
 
 	private void run() throws IOException {
 		try {
+			@SuppressWarnings("resource")
 			var socket = new Socket("127.0.0.1", 59001);
 			in = new Scanner(socket.getInputStream());
 			out = new PrintWriter(socket.getOutputStream(), true);
@@ -53,7 +54,6 @@ public class Agent {
 	}
 
 	public static void main(String[] args) throws Exception {
-		// TODO Auto-generated method stub
 		Agent agent = new Agent();
 		agent.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		agent.frame.setLocationRelativeTo(null);

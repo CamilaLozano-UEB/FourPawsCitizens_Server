@@ -28,7 +28,6 @@ public class Client {
 		frame.getContentPane().add(textField, BorderLayout.SOUTH);
 		frame.getContentPane().add(new JScrollPane(messageArea), BorderLayout.CENTER);
 		frame.pack();
-
 		// Send on enter then clear to prepare for next message
 		textField.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -40,8 +39,6 @@ public class Client {
 	}
 
 	public static void main(String[] args) throws UnknownHostException, IOException {
-		// TODO Auto-generated method stub
-
 		var client = new Client();
 		client.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		client.frame.setLocationRelativeTo(null);
@@ -51,6 +48,7 @@ public class Client {
 
 	private void run() throws IOException {
 		try {
+			@SuppressWarnings("resource")
 			var socket = new Socket("127.0.0.1", 59001);
 			in = new Scanner(socket.getInputStream());
 			out = new PrintWriter(socket.getOutputStream(), true);
