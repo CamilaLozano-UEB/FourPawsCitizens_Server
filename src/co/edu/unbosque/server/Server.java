@@ -164,10 +164,14 @@ public class Server {
 				} else if (role.equals("Agent") && out != null) {
 					if (agentWriters.indexOf(out) != userIndex)
 						userIndex = agentWriters.indexOf(out);
+					
 
-					if (connectionWriter != null)
+					if (connectionWriter != null) {
 						connectionWriter
 								.println("El agente se ha desconectado, presione Enter antes de enviar otro mensaje");
+					}else if(clientConnection.get(userIndex)!=null) {
+						clientConnection.get(userIndex).println("El agente se ha desconectado, presione Enter para ser dirigido al menú.");
+					}
 					agentWriters.remove(out);
 					agentStatus.remove(userIndex);
 					clientConnection.remove(userIndex);
