@@ -24,6 +24,15 @@ public class Persistence {
 	 */
 	public int writeCSV(String report) {
 		File f = new File(this.rute);
+		if(!f.exists()) {
+			try {
+				f.mkdirs();
+				f.createNewFile();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		} 
 		try {
 			FileWriter fw = new FileWriter(f.getAbsoluteFile(), true);
 			BufferedWriter bw = new BufferedWriter(fw);

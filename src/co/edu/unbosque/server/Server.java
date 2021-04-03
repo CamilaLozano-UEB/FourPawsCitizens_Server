@@ -274,7 +274,7 @@ public class Server {
 			String phone = in.nextLine();
 			out.println("Ingrese su correo");
 			String email = in.nextLine();
-			out.println("Ingrese su comentarios");
+			out.println("Ingrese sus comentarios");
 			String comment = in.nextLine();
 			String event;
 			switch (op2) {
