@@ -2,8 +2,10 @@ package co.edu.unbosque.persistence;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.time.LocalDateTime;
 
 public class Persistence {
@@ -23,22 +25,24 @@ public class Persistence {
 	 * @return returns a 0 or a -1
 	 */
 	public int writeCSV(String report) {
+		File dir = new File("./Data");
 		File f = new File(this.rute);
-		if(!f.exists()) {
+		if (!dir.exists()) {
+			dir.mkdirs();
 			try {
-				f.mkdirs();
-				f.createNewFile();
+				BufferedWriter bw = new BufferedWriter(
+						new OutputStreamWriter(new FileOutputStream(f, true), "ISO-8859-1"));
+				bw.write(
+						"Fecha;Tipo de reporte;Especie;Tamaño;Localidad;Dirección;Nombre;Teléfono;Correo;Comentarios\n");
+				bw.close();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				return -1;
 			}
-		} 
+		}
 		try {
-			FileWriter fw = new FileWriter(f.getAbsoluteFile(), true);
-			BufferedWriter bw = new BufferedWriter(fw);
+			BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f, true), "ISO-8859-1"));
 			bw.write(LocalDateTime.now() + ";" + report + "\n");
 			bw.close();
-			fw.close();
 		} catch (IOException e) {
 			return -1;
 		}
