@@ -14,7 +14,7 @@ public class Server {
 	private static ArrayList<Boolean> agentesDisponiblesIndex = new ArrayList<Boolean>();
 	private static ArrayList<PrintWriter> agentesDisponibles = new ArrayList<PrintWriter>();
 	private static ArrayList<PrintWriter> agentWriters = new ArrayList<PrintWriter>();
-	private static int numOfClients = 0;
+	private static ArrayList<PrintWriter> clientWriters = new ArrayList<PrintWriter>();
 
 	public static void main(String[] args) throws Exception {
 		System.out.println("The chat server is running...");
@@ -54,8 +54,8 @@ public class Server {
 				if (line.equals("Client")) {
 					role = "Client";
 					out.println("Bienvenido a Ciudadanos de 4 patas");
-					userIndex = numOfClients;
-					numOfClients++;
+					userIndex = clientWriters.size();
+					clientWriters.add(out);
 					while (true) {
 						out.println(
 								" Ingrese el numero que desea" + " \n1. Crear un caso" + "\n2. Hablar con un agente");
@@ -119,6 +119,8 @@ public class Server {
 							.println("El cliente se ha desconectado, presione Enter antes de enviar otro mensaje");
 					agentesDisponiblesIndex.set(agentesDisponibles.indexOf(out), false);
 					agentesDisponibles.set(agentesDisponibles.indexOf(out), null);
+					clientWriters.remove(out);
+
 				} else if (role.equals("Agent") && out != null) {
 					connectionWriter
 							.println("El agente se ha desconectado, presione Enter antes de enviar otro mensaje");
