@@ -14,6 +14,12 @@ public class View extends JFrame {
 	private JTextField inputTextField;
 	private JTextArea outputMessageArea;
 
+	/**
+	 * Constructor that assigns the basic parameters of the server window
+	 * 
+	 * @param title
+	 */
+
 	public View(String title) {
 
 		this.inputTextField = new JTextField(50);
@@ -28,11 +34,15 @@ public class View extends JFrame {
 		this.setVisible(true);
 	}
 
+	/**
+	 * Method that assigns color to the background and the font style of the letter
+	 */
+
 	public void setComponentCharacteristics() {
 		this.outputMessageArea.setEditable(false);
 		this.outputMessageArea.setBackground(new Color(96, 163, 188));
 		this.outputMessageArea.setFont(new Font("Times New Roman", Font.PLAIN, 14));
-		
+
 		this.inputTextField.setBackground(new Color(130, 204, 221));
 		this.inputTextField.setFont(new Font("Times New Roman", Font.PLAIN, 14));
 

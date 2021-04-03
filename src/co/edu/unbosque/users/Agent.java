@@ -14,9 +14,12 @@ public class Agent {
 	private PrintWriter out;
 	private View view;
 
+	/**
+	 * Instances the hearing and gives it the corresponding title. Assign a
+	 * actionListener that listens every time the user types something and sends it
+	 */
 	public Agent() {
 		view = new View("Four Pawns Citizens - Agent");
-
 		view.getInputTextField().addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				out.println(view.getInputTextField().getText());
@@ -24,6 +27,13 @@ public class Agent {
 			}
 		});
 	}
+
+	/**
+	 * Creates the connection with the server on the established port 59001, sends
+	 * the agent type to the server and keeps receiving messages
+	 * 
+	 * @throws IOException
+	 */
 
 	private void run() throws IOException {
 		try {
@@ -40,6 +50,13 @@ public class Agent {
 			view.dispose();
 		}
 	}
+
+	/**
+	 * Runs the Agent class
+	 * 
+	 * @param args
+	 * @throws Exception
+	 */
 
 	public static void main(String[] args) throws Exception {
 		Agent agent = new Agent();

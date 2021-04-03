@@ -11,10 +11,23 @@ import co.edu.unbosque.persistence.Persistence;
 
 public class Server {
 
-	private static ArrayList<Boolean> agentesDisponiblesIndex = new ArrayList<Boolean>();
-	private static ArrayList<PrintWriter> agentesDisponibles = new ArrayList<PrintWriter>();
+	// Stores the state of the agent in the position of this
+	private static ArrayList<Boolean> agentStatus = new ArrayList<Boolean>();
+	// Stores the outputStream of the client you are talking to
+	private static ArrayList<PrintWriter> clientConnection = new ArrayList<PrintWriter>();
+	// Stores all the outputStream of the agents in their respective position
 	private static ArrayList<PrintWriter> agentWriters = new ArrayList<PrintWriter>();
+	// Stores all the outputStream of the clients in their respective position
 	private static ArrayList<PrintWriter> clientWriters = new ArrayList<PrintWriter>();
+
+	/**
+	 * Runs the server with a maximum of 500 threads on the port 59001, and every
+	 * time a user connects, it starts a thread and handles it
+	 * 
+	 * @param args
+	 * @throws Exception
+	 * 
+	 */
 
 	public static void main(String[] args) throws Exception {
 		System.out.println("The chat server is running...");
@@ -22,12 +35,12 @@ public class Server {
 		var pool = Executors.newFixedThreadPool(500);
 		try (var listener = new ServerSocket(59001)) {
 			while (true) {
-				pool.execute(new Handler(listener.accept()));
+				pool.execute(new FourPawsCitizensHandler(listener.accept()));
 			}
 		}
 	}
 
-	private static class Handler implements Runnable {
+	private static class FourPawsCitizensHandler implements Runnable {
 		private Socket socket;
 		private String role;
 		private PrintWriter connectionWriter;
@@ -35,23 +48,26 @@ public class Server {
 		private Scanner in;
 		private PrintWriter out;
 
-		public Handler(Socket socket) {
+		public FourPawsCitizensHandler(Socket socket) {
 			this.socket = socket;
 		}
 
 		/**
-		 * Services this thread's client by repeatedly requesting a screen name until a
-		 * unique one has been submitted, then acknowledges the name and registers the
-		 * output stream for the client in a global set, then repeatedly gets inputs and
-		 * broadcasts them.
+		 * 
+		 * It receives the type of user, if you are a client it shows you the option to
+		 * register a case or contact an agent. If it is an agent it keeps it on hold
+		 * until you receive a connection request from a client; you can accept it and
+		 * communicate with him or deny it and keep waiting
 		 */
 		public void run() {
 			try {
 				in = new Scanner(socket.getInputStream());
 				out = new PrintWriter(socket.getOutputStream(), true);
-				// Keep requesting a name until we get a unique one.
+				// Receive the type of user
 				String line = in.nextLine();
 				if (line.equals("Client")) {
+					// Assign the role, add the client's OutputStream to the
+					// global arraylist and gives the main menu interaction options
 					role = "Client";
 					out.println("Bienvenido a Ciudadanos de 4 patas");
 					userIndex = clientWriters.size();
@@ -74,61 +90,73 @@ public class Server {
 					}
 
 				} else {
-					userIndex = agentesDisponibles.size();
-					agentesDisponibles.add(null);
-					agentesDisponiblesIndex.add(false);
+					// Assign the position to the client, add a null position to the
+					// clientConnection, add a false (available) state, add the outputStream to
+					// agentWriters and assign a role
+					userIndex = clientConnection.size();
+					clientConnection.add(null);
+					agentStatus.add(false);
 					agentWriters.add(out);
 					role = "Agent";
 					out.println("Conectado como agente");
+					// Wait for the agent to receive a notification, when he responds and verifies
+					// that your user number is correct.
 					while (true) {
 						line = in.nextLine();
 						if (agentWriters.indexOf(out) != userIndex) {
 							userIndex = agentWriters.indexOf(out);
 						}
-
-						if (agentesDisponibles.get(userIndex) != null) {
+						// Establish the connection, change its state to true, save the outputStream
+						// from the client in connectionWriter and engage the conversation until the
+						// user exit
+						if (clientConnection.get(userIndex) != null) {
 							if (line.equalsIgnoreCase("Si") || line.equalsIgnoreCase("Sí")) {
 								out.println("Se ha establecido conexión");
-								connectionWriter = agentesDisponibles.get(userIndex);
-								agentesDisponiblesIndex.set(userIndex, true);
+								connectionWriter = clientConnection.get(userIndex);
+								agentStatus.set(userIndex, true);
 								connectionWriter.println("Conexión establecida");
 								while (true) {
 									line = in.nextLine();
-									if (agentesDisponibles.indexOf(connectionWriter) == -1) {
+									if (clientConnection.indexOf(connectionWriter) == -1) {
 										connectionWriter = null;
 										break;
 									}
 									connectionWriter.println("Agente: " + line);
 									out.println("Me: " + line);
 								}
+								// In such case the connection is denied, it will try to check if there are more
+								// agents, if they do not exist, you will be notified of the lack of
+								// customer availability. Reset the values to their initial state
 							} else if (line.equalsIgnoreCase("No")) {
 								out.println("Solicitud rechazada");
-								if (userIndex == agentesDisponibles.size() - 1) {
-									connectionWriter = agentesDisponibles.get(userIndex);
+								if (userIndex == clientConnection.size() - 1) {
+									connectionWriter = clientConnection.get(userIndex);
 									connectionWriter.println("No hay agentes disponibles, presione ENTER");
 
 								} else {
-									agentesDisponibles.get(userIndex).println(
+									clientConnection.get(userIndex).println(
 											"El agente ha denegado su solicitud,\n escriba *esperar* si desea enviar la solicitud a otro agente");
 								}
 								connectionWriter = null;
-								agentesDisponibles.set(userIndex, null);
-								agentesDisponiblesIndex.set(userIndex, false);
+								clientConnection.set(userIndex, null);
+								agentStatus.set(userIndex, false);
 							}
 						}
 					}
 				}
 
 			} catch (Exception e) {
+				// Notify that the client or agent has disconnected and resets the values of the
+				// other type of user
 			} finally {
 				if (role.equals("Client") && out != null) {
 					if (connectionWriter != null) {
 						connectionWriter
 								.println("El cliente se ha desconectado, presione Enter antes de enviar otro mensaje");
 					}
-					if (-1 != agentesDisponibles.indexOf(out)) {
-						agentesDisponiblesIndex.set(agentesDisponibles.indexOf(out), false);
-						agentesDisponibles.set(agentesDisponibles.indexOf(out), null);
+					if (-1 != clientConnection.indexOf(out)) {
+						agentStatus.set(clientConnection.indexOf(out), false);
+						clientConnection.set(clientConnection.indexOf(out), null);
 					}
 
 					clientWriters.remove(out);
@@ -141,8 +169,8 @@ public class Server {
 						connectionWriter
 								.println("El agente se ha desconectado, presione Enter antes de enviar otro mensaje");
 					agentWriters.remove(out);
-					agentesDisponiblesIndex.remove(userIndex);
-					agentesDisponibles.remove(userIndex);
+					agentStatus.remove(userIndex);
+					clientConnection.remove(userIndex);
 				}
 				try {
 					socket.close();
@@ -151,48 +179,55 @@ public class Server {
 			}
 		}
 
+		/**
+		 * Checks that agents are available and establishes communication between a
+		 * client and an agent
+		 */
+
 		private void agentConnection() {
 			// TODO Auto-generated method stub
 			out.println("Solicitud enviada");
-			if (agentesDisponibles.size() == 0) {
+			if (clientConnection.size() == 0) {
 				out.println("No hay agentes disponibles");
 				return;
 			}
-			for (int i = 0; i < agentesDisponibles.size(); i++) {
-				if (agentesDisponiblesIndex.get(i) && i == agentesDisponibles.size() - 1) {
+			// Look for an agent with whom to establish communication and verify that the
+			// agent is available or does not have communication with another client
+			for (int i = 0; i < clientConnection.size(); i++) {
+				if (agentStatus.get(i) && i == clientConnection.size() - 1) {
 					out.println("No hay agentes disponibles ");
-				} else if (agentesDisponibles.get(i) != null && i == agentesDisponibles.size() - 1) {
+				} else if (clientConnection.get(i) != null && i == clientConnection.size() - 1) {
 					out.println("No hay más agentes disponibles ");
-				} else if (agentesDisponibles.get(i) == null && !agentesDisponiblesIndex.get(i)) {
+				} else if (clientConnection.get(i) == null && !agentStatus.get(i)) {
 
 					connectionWriter = agentWriters.get(i);
 					connectionWriter.println("¿Acepta solicitud?, responda Si o No");
-					agentesDisponibles.set(i, out);
+					clientConnection.set(i, out);
+					// Establish communication until you receive the notification that the agent
+					// disconnected or unavailable
 					while (true) {
 						String input = in.nextLine();
 
 						try {
 							if (agentWriters.indexOf(connectionWriter) != i) {
-								if (agentWriters.indexOf(connectionWriter) == -1) {
+								if (agentWriters.indexOf(connectionWriter) == -1)
 									return;
-								} else {
+								else
 									i = agentWriters.indexOf(connectionWriter);
-								}
-
 							}
-							if (i == agentesDisponibles.size() - 1 && !agentesDisponiblesIndex.get(i)
-									&& agentesDisponibles.get(i) == null) {
+							if (i == clientConnection.size() - 1 && !agentStatus.get(i)
+									&& clientConnection.get(i) == null) {
 								out.println("No hay más agentes disponibles");
 								connectionWriter = null;
 								return;
 							}
 
-							if (agentesDisponibles.get(agentWriters.indexOf(connectionWriter)) == null) {
+							if (clientConnection.get(agentWriters.indexOf(connectionWriter)) == null) {
 								connectionWriter = null;
 								break;
 							}
 
-							if (agentesDisponiblesIndex.get(agentWriters.indexOf(connectionWriter))) {
+							if (agentStatus.get(agentWriters.indexOf(connectionWriter))) {
 								out.println("Me: " + input);
 								agentWriters.get(i).println("Client: " + input);
 							}
@@ -207,6 +242,12 @@ public class Server {
 			}
 
 		}
+
+		/**
+		 * Method that requests the necessary data from the client to assemble the
+		 * report of the case. Create a string report that builds the case. Instance the
+		 * persistence class and send it the string report
+		 */
 
 		private void createCase() {
 			Persistence per = new Persistence();

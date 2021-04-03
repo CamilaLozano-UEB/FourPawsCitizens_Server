@@ -15,6 +15,11 @@ public class Client {
 	private PrintWriter out;
 	private View view;
 
+	/**
+	 * Instances the hearing and gives it the corresponding title. Assign a
+	 * actionListener that listens every time the user types something and sends it
+	 */
+
 	public Client() {
 
 		view = new View("Four Pawns Citizens - Agent");
@@ -28,10 +33,25 @@ public class Client {
 
 	}
 
+	/**
+	 * Runs the client class
+	 * 
+	 * @param args
+	 * @throws UnknownHostException
+	 * @throws IOException
+	 */
+
 	public static void main(String[] args) throws UnknownHostException, IOException {
-		var client = new Client();
+		Client client = new Client();
 		client.run();
 	}
+
+	/**
+	 * Creates the connection with the server on the established port 59001, sends
+	 * the client type to the server and keeps receiving messages
+	 * 
+	 * @throws IOException
+	 */
 
 	private void run() throws IOException {
 		try {
