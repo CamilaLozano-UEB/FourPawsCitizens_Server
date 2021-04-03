@@ -120,7 +120,6 @@ public class Server {
 				}
 
 			} catch (Exception e) {
-				e.printStackTrace();
 			} finally {
 				if (role.equals("Client") && out != null) {
 					if (connectionWriter != null) {
